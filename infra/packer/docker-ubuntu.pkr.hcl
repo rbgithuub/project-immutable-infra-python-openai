@@ -9,11 +9,11 @@ packer {
 
 variable "docker_image" {
   type    = string
-  default = "ubuntu:jammy"
+  default = "python:3.12"
 }
 
 
-source "docker" "ubuntu" {
+source "docker" "python" {
   image  = var.docker_image
   commit = true
 }
@@ -21,7 +21,7 @@ source "docker" "ubuntu" {
 build {
   name = "imm-infra-openai-conpdf"
   sources = [
-    "source.docker.ubuntu"
+    "source.docker.python"
   ]
 
   provisioner "shell" {
@@ -35,7 +35,35 @@ build {
   }
 
   provisioner "shell" {
-      inline = ["echo This is docker image - ${var.docker_image}."]
+    inline = [
+      "echo This is docker image - ${var.docker_image}.",
+      "mkdir /apps/",
+    ]
+  }
 
-    }
+  provisioner "file" {
+    source      = "requirements.txt"
+    destination = "/apps/requirements.txt"
+  }
+
+  provisioner "file" {
+    source     =  "openai-internal-kb.py"
+    destination = "/apps/openai-internal-kb.py"
+  }
+
+  provisioner "file" {
+    source     =  "Salt.pdf"
+    destination = "/apps/Salt.pdf"
+  }
+
+  provisioner "shell" {
+/*    environment_vars = [
+      "OPENAI_API_KEY=\"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\"",
+    ] */	
+    inline = [
+      "pip install --no-cache-dir --requirement  /apps/requirements.txt",
+      "python /apps/openai-internal-kb.py"
+    ]
+  }
 }
+
