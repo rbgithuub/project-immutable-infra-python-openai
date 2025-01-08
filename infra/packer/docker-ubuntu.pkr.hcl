@@ -58,7 +58,7 @@ build {
 
   provisioner "shell" {
 /*    environment_vars = [
-      "OPENAI_API_KEY=\"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\"",
+      ,
     ] */	
     inline = [
       "pip install --no-cache-dir --requirement  /apps/requirements.txt",
