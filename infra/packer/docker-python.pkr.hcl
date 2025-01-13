@@ -7,11 +7,15 @@ packer {
   }
 }
 
+
+variable "openai_api_key" {
+  type    = string
+}
+
 variable "docker_image" {
   type    = string
   default = "python:3.12"
 }
-
 
 source "docker" "python" {
   image  = var.docker_image
@@ -23,8 +27,8 @@ build {
   sources = [
     "source.docker.python"
   ]
-
-  provisioner "shell" {
+  
+provisioner "shell" {
     environment_vars = [
       "FOO=hello world",
     ]
@@ -47,21 +51,19 @@ build {
   }
 
   provisioner "file" {
-    source     =  "openai-internal-kb.py"
+    source      = "openai-internal-kb.py"
     destination = "/apps/openai-internal-kb.py"
   }
 
   provisioner "file" {
-    source     =  "Salt.pdf"
+    source      = "Salt.pdf"
     destination = "/apps/Salt.pdf"
   }
 
   provisioner "shell" {
-/*    environment_vars = [
-      ,
-    ] */	
     inline = [
       "pip install --no-cache-dir --requirement  /apps/requirements.txt",
+      "export OPENAI_API_KEY=${var.openai_api_key}",
       "python /apps/openai-internal-kb.py"
     ]
   }
